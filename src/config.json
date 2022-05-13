@@ -1,45 +1,92 @@
 {
     "wallet": {
-        "address": "<your 0x Wallet Address>",
-        "encryptedWalletPath": "./w.json"
+        "address": "0xe20b5f56d936931BEdbC62d298C8406deDaF36b9",
+        "encryptedWalletPath": "./meta.json"
     },
 
-    "professionMaxAttempts": 5,
     "nonProfessionMaxAttempts": 3,
     "maxQuestGroupSize": 6,
 
-    "pollingInterval": "60000",
+    "pollingInterval": "30000",
 
     "quests": [
         {
-            "name": "Fishing",
-            "professionHeroes": [34567],
-            "nonProfessionHeroes": [12345, 23456],
-            "contractAddress": "0xE259e8386d38467f0E7fFEdB69c3c9C935dfaeFc"
-        },
-        {
-            "name": "Foraging",
-            "professionHeroes": [45678, 56789],
-            "nonProfessionHeroes": [67890],
-            "contractAddress": "0x3132c76acF2217646fB8391918D28a16bD8A8Ef4"
-        },
-        {
-            "name": "WishingWell",
-            "professionHeroes": [],
+            "name": "Dancing(END)",
+            "professionHeroes": [ 68058 ],
             "nonProfessionHeroes": [],
-            "contractAddress": "0x0548214A0760a897aF53656F4b69DbAD688D8f29"
+            "contractAddress": "0xCb594A24D802cdF65000A84dC0059dde11c9d15f",
+            "professionMaxAttempts": 5,
+            "professionLevel": 1
+        },
+        {
+            "name": "Arm Wrestling(STR)",
+            "professionHeroes": [ 53819 ],
+            "nonProfessionHeroes": [],
+            "contractAddress": "0xf60AF3a32Bb94e395E17C70aB695d968F37Bd2e4",
+            "professionMaxAttempts": 5,
+            "professionLevel": 1
+        },
+        {
+            "name": "Darts(DEX)",
+            "professionHeroes": [ ],
+            "nonProfessionHeroes": [],
+            "contractAddress": "0xe03fd4e2F6421b1251297240cE5248508C9104eD",
+            "professionMaxAttempts": 5,
+            "professionLevel": 1
+        },
+        {
+            "name": "Alchemist Assistance(INT)",
+            "professionHeroes": [ 99657 ],
+            "nonProfessionHeroes": [],
+            "contractAddress": "0x6176EedE1AE9127D59266f197Ad598653E4F8c92",
+            "professionMaxAttempts": 5,
+            "professionLevel": 1
+        },
+        {
+            "name": "Game of Ball(AGI)",
+            "professionHeroes": [ 134701, 101069 ],
+            "nonProfessionHeroes": [],
+            "contractAddress": "0xFA20B218927B0f57a08196743488c7C790a5625B",
+            "professionMaxAttempts": 5,
+            "professionLevel": 1
+        },
+        {
+            "name": "Puzzle Solving(WIS)",
+            "professionHeroes": [  ],
+            "nonProfessionHeroes": [],
+            "contractAddress": "0x347097454fA1931A4e80dcDebb31F29FC355CbCE",
+            "professionMaxAttempts": 5,
+            "professionLevel": 1
+        },
+        {
+            "name": "Helping the Farm(VIT)",
+            "professionHeroes": [ 28234 ],
+            "nonProfessionHeroes": [],
+            "contractAddress": "0x2174bBeFbEFBD766326a7C7538f93a78Db3eD449",
+            "professionMaxAttempts": 5,
+            "professionLevel": 1
+        },
+        {
+            "name": "Card Game(LUCK)",
+            "professionHeroes": [  ],
+            "nonProfessionHeroes": [],
+            "contractAddress": "0x13E74E4E64805E7fdA381C9BEF1e77cd16086E56",
+            "professionMaxAttempts": 5,
+            "professionLevel": 1
         }
     ],
 
-    "questContract": "0x5100Bd31b822371108A0f63DCFb6594b9919Eaf4",
+    "questContract": "0xAa9a289ce0565E4D6548e63a441e7C084E6B52F6",
     "heroContract": "0x5f753dcdf9b1ad9aabc1346614d1f4746fd6ce5c",
 
     "useBackupRpc": false,
     "rpc": {
+        "hermesdefi": "https://rpc.hermesdefi.io/",
+        "fuzz": "https://api.fuzz.fi",
         "harmonyRpc": "https://api.harmony.one",
         "poktRpc": "https://harmony-0-rpc.gateway.pokt.network"
     },
 
-    "gasPrice": 30000000000,
+    "gasPrice": 40000000000,
     "gasLimit": 5000000
 }

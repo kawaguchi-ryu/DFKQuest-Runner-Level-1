@@ -98,8 +98,9 @@ async function promptForInput(prompt, promptFor) {
 
 async function checkForQuests() {
     try {
-        console.log("\nChecking for quests...\n");
-        let activeQuests = await questContract.getActiveQuests(
+        // console.log("\nChecking for quests...\n");
+        console.log("...");
+        let activeQuests = await questContract.getAccountActiveQuests(
             config.wallet.address
         );
 
@@ -119,9 +120,9 @@ async function checkForQuests() {
         let doneQuests = activeQuests.filter(
             (quest) => !runningQuests.includes(quest)
         );
-        for (const quest of doneQuests) {
-            await completeQuest(quest.heroes[0]);
-        }
+        // for (const quest of doneQuests) {
+        //     await completeQuest(quest.heroes[0]);
+        // }
 
         // Start any quests needing to start
         let questsToStart = await getQuestsToStart(activeQuests);
@@ -131,13 +132,14 @@ async function checkForQuests() {
 
         setTimeout(() => checkForQuests(), config.pollingInterval);
 
-        console.log(`Waiting for ${config.pollingInterval / 1000} seconds...`);
+        // console.log(`Waiting for ${config.pollingInterval / 1000} seconds...`);
     } catch (err) {
-        console.error(
-            `An error occured. Will attempt to retry in ` +
-                `${config.pollingInterval / 1000} seconds... Error:`,
-            err
-        );
+        // console.error(
+        //     `An error occured. Will attempt to retry in ` +
+        //         `${config.pollingInterval / 1000} seconds... Error:`,
+        //     err
+        // );
+        console.log("error");
         setTimeout(() => checkForQuests(), config.pollingInterval);
     }
 }
@@ -151,27 +153,30 @@ async function getQuestsToStart(activeQuests) {
     );
 
     for (const quest of config.quests) {
+        // 適職
         if (quest.professionHeroes.length > 0) {
             var readyHeroes = await getHeroesWithGoodStamina(
                 questingHeroes,
                 quest,
-                config.professionMaxAttempts,
+                quest.professionMaxAttempts,
                 true
             );
+            // console.log('readyHeroes: '+ readyHeroes);
             questsToStart.push({
                 name: quest.name,
                 address: quest.contractAddress,
                 professional: true,
                 heroes: readyHeroes,
-                attempts: config.professionMaxAttempts,
+                attempts: quest.professionMaxAttempts,
+                level: quest.professionLevel,
             });
         }
-
+        // 非適職
         if (quest.nonProfessionHeroes.length > 0) {
             var readyHeroes = await getHeroesWithGoodStamina(
                 questingHeroes,
                 quest,
-                config.nonProfessionMaxAttempts,
+                quest.nonProfessionMaxAttempts,
                 false
             );
             questsToStart.push({
@@ -179,7 +184,8 @@ async function getQuestsToStart(activeQuests) {
                 address: quest.contractAddress,
                 professional: false,
                 heroes: readyHeroes,
-                attempts: config.nonProfessionMaxAttempts,
+                attempts: quest.nonProfessionMaxAttempts,
+                level: quest.professionLevel,
             });
         }
     }
@@ -193,7 +199,15 @@ async function getHeroesWithGoodStamina(
     maxAttempts,
     professional
 ) {
-    let minStamina = professional ? 5 * maxAttempts : 7 * maxAttempts;
+    if (quest.name === "Mining_jewel") {
+        var minStamina = 15;
+    } else if (quest.name === "Mining_gold") {
+        var minStamina = 15;
+    } else if (quest.name === "Gardening") {
+        var minStamina = 28;
+    } else {
+      var minStamina = professional ? 5 * maxAttempts : 7 * maxAttempts;
+    }
 
     let heroes = professional
         ? quest.professionHeroes
@@ -215,19 +229,27 @@ async function getHeroesWithGoodStamina(
         return null;
     });
 
+    // 2504, 173436 をセットで出す
+    // if ((heroesWithGoodStaminaRaw.includes(173436) && !heroesWithGoodStaminaRaw.includes(2504))) {
+    //     heroesWithGoodStaminaRaw[1] = null;
+    // }
+    // if (heroesWithGoodStaminaRaw.includes(2504) && !heroesWithGoodStaminaRaw.includes(173436)) {
+    //     heroesWithGoodStaminaRaw[0] = null;
+    // }
+
     const heroesWithGoodStamina = heroesWithGoodStaminaRaw.filter((h) => !!h);
 
     // TODO: Contract error, fix
     //let hero = await questContract.getHero(lowestStaminaHero)
     //console.log(`${professional ? "Professional" : "Non-professional" } ${quest.name} quest due to start at ${displayTime(hero.state.staminaFullAt)}`)
 
-    if (!heroesWithGoodStamina.length) {
-        console.log(
-            `${professional ? "Professional" : "Non-professional"} ${
-                quest.name
-            } quest is not ready to start.`
-        );
-    }
+    // if (!heroesWithGoodStamina.length) {
+        // console.log(
+        //     `${professional ? "Professional" : "Non-professional"} ${
+        //         quest.name
+        //     } quest is not ready to start.`
+        // );
+    // }
 
     return heroesWithGoodStamina;
 }
@@ -268,9 +290,9 @@ async function startQuestBatch(quest, questingGroup) {
                         questingGroup,
                         quest.address,
                         quest.attempts,
-                        callOptions
+                        quest.level,
                     ),
-            2
+            3 // トランザクション試行回数
         );
         console.log(
             `Started ${
@@ -298,6 +320,8 @@ async function completeQuest(heroId) {
 
         console.log(`\n***** Completed quest led by hero ${heroId} *****\n`);
 
+        // console.dir(receipt, { depth: null });
+
         let xpEvents = receipt.events.filter((e) => e.event === "QuestXP");
         console.log(
             `XP: ${xpEvents.reduce(
@@ -306,24 +330,24 @@ async function completeQuest(heroId) {
             )}`
         );
 
-        let suEvents = receipt.events.filter((e) => e.event === "QuestSkillUp");
-        console.log(
-            `SkillUp: ${
-                suEvents.reduce(
-                    (total, result) => total + Number(result.args.skillUp),
-                    0
-                ) / 10
-            }`
-        );
+        // let suEvents = receipt.events.filter((e) => e.event === "QuestSkillUp");
+        // console.log(
+        //     `SkillUp: ${
+        //         suEvents.reduce(
+        //             (total, result) => total + Number(result.args.skillUp),
+        //             0
+        //         ) / 10
+        //     }`
+        // );
 
-        let rwEvents = receipt.events.filter((e) => e.event === "QuestReward");
-        rwEvents.forEach((result) =>
-            console.log(
-                `${result.args.itemQuantity} x ${getRewardDescription(
-                    result.args.rewardItem
-                )}`
-            )
-        );
+        // let rwEvents = receipt.events.filter((e) => e.event === "QuestReward");
+        // rwEvents.forEach((result) =>
+        //     console.log(
+        //         `${result.args.itemQuantity} x ${getRewardDescription(
+        //             result.args.rewardItem
+        //         )}`
+        //     )
+        // );
 
         console.log("\n*****\n");
     } catch (err) {
@@ -353,7 +377,8 @@ function getRewardDescription(rewardAddress) {
 }
 
 function getRpc() {
-    return config.useBackupRpc ? config.rpc.poktRpc : config.rpc.harmonyRpc;
+    // return config.useBackupRpc ? config.rpc.poktRpc : config.rpc.harmonyRpc;
+    return config.useBackupRpc ? config.rpc.fuzz : config.rpc.hermesdefi;
 }
 
 function displayTime(timestamp) {
